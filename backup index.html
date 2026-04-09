@@ -75,48 +75,53 @@
             font-weight: bold;
         }
 
-        /* ── PDF: Página de foto completa (una foto por hoja) ── */
-        .pdf-full-photo-page {
-            page-break-before: always;  /* Nueva hoja antes de cada foto */
-            break-before: page;
-            padding-top: 12px;
-            height: 980px;              /* Ocupa casi toda la hoja A4 */
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
+        /*
+         * ── CUADRÍCULA DE FOTOS (CRÍTICO) personalizado ──────────────────────────────────
+         *
+         * Usamos FILAS explícitas en lugar de CSS grid, porque html2canvas
+         * no respeta page-break-inside: avoid dentro de display:grid.
+         * Cada fila de 2 fotos tiene su propio bloque con page-break-inside.
+         */
+        .pdf-photo-row {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            border-spacing: 10px 0;
+            /* Evita corte de página DENTRO de cada fila */
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 12px;
         }
-        .pdf-full-photo-page .photo-title {
-            font-size: 13px;
-            font-weight: bold;
-            text-align: center;
-            background: #dbeafe;
-            color: #1e3a8a;
-            padding: 9px 10px;
-            border: 1px solid #93c5fd;
-            margin-bottom: 10px;
-            flex-shrink: 0;
-            text-transform: uppercase;
-        }
-        .pdf-full-photo-page .photo-container {
-            flex: 1;                    /* Ocupa TODO el espacio restante */
+        .pdf-photo-cell {
+            display: table-cell;
+            width: 50%;
             border: 1px solid #d1d5db;
-            background: #f9fafb;
+            padding: 6px;
+            background: #fafafa;
+            text-align: center;
+            vertical-align: top;
+        }
+        .pdf-photo-cell img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            display: block;
+        }
+        .pdf-img-label {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 5px;
+            text-transform: uppercase;
+            color: #374151;
+        }
+        .pdf-no-photo {
+            height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            min-height: 0;             /* Crítico para que flex no se desborde */
-        }
-        .pdf-full-photo-page .photo-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;       /* Muestra completa sin recortar */
-            display: block;
-        }
-        .pdf-no-photo {
             color: #9ca3af;
-            text-align: center;
-            font-size: 13px;
+            font-size: 11px;
+            background: #e5e7eb;
         }
 
         /* ── Loader ── */
@@ -498,85 +503,78 @@
             <p style="font-size:11px; color:#4b5563;">PREVENCIONISTA DE RIESGOS SICE</p>
         </div>
 
-        <!-- ══ EVIDENCIA FOTOGRÁFICA — UNA FOTO POR HOJA ══ -->
+        <!-- ══ EVIDENCIA FOTOGRÁFICA - DOCUMENTACIÓN ══ -->
+        <!-- page-break-before fuerza nueva página limpia -->
+        <div class="pdf-section" style="page-break-before:always; padding-top:18px;">
+            <div class="pdf-title">EVIDENCIA FOTOGRÁFICA — DOCUMENTACIÓN</div>
 
-        <!-- Foto 1: AST / HCR -->
-        <div class="pdf-full-photo-page">
-            <div class="photo-title">EVIDENCIA FOTOGRÁFICA — DOCUMENTACIÓN<br>
-                <span id="pdf-label-ast" style="font-size:12px;">1. AST</span>
+            <!-- Fila 1: AST/HCR + Charla -->
+            <div class="pdf-photo-row">
+                <div class="pdf-photo-cell">
+                    <div id="pdf-wrap-ast">
+                        <img id="pdf-img-ast" src="" alt="">
+                    </div>
+                    <div class="pdf-img-label" id="pdf-label-ast">1. AST</div>
+                </div>
+                <div class="pdf-photo-cell">
+                    <div id="pdf-wrap-charla">
+                        <img id="pdf-img-charla" src="" alt="">
+                    </div>
+                    <div class="pdf-img-label">2. Charla Operacional 5 Minutos</div>
+                </div>
             </div>
-            <div class="photo-container" id="pdf-wrap-ast">
-                <img id="pdf-img-ast" src="" alt="">
+
+            <!-- Fila 2: Check List 1 + Check List 2 -->
+            <div class="pdf-photo-row">
+                <div class="pdf-photo-cell">
+                    <div id="pdf-wrap-chk1">
+                        <img id="pdf-img-chk1" src="" alt="">
+                    </div>
+                    <div class="pdf-img-label">3. Check List 1</div>
+                </div>
+                <div class="pdf-photo-cell">
+                    <div id="pdf-wrap-chk2">
+                        <img id="pdf-img-chk2" src="" alt="">
+                    </div>
+                    <div class="pdf-img-label">4. Check List 2</div>
+                </div>
             </div>
         </div>
 
-        <!-- Foto 2: Charla Operacional -->
-        <div class="pdf-full-photo-page">
-            <div class="photo-title">EVIDENCIA FOTOGRÁFICA — DOCUMENTACIÓN<br>
-                <span style="font-size:12px;">2. Charla Operacional 5 Minutos</span>
-            </div>
-            <div class="photo-container" id="pdf-wrap-charla">
-                <img id="pdf-img-charla" src="" alt="">
-            </div>
-        </div>
+        <!-- ══ EVIDENCIA FOTOGRÁFICA - ACTIVIDADES ══ -->
+        <div class="pdf-section" style="page-break-before:always; padding-top:10px;">
+            <div class="pdf-title">EVIDENCIA FOTOGRÁFICA — ACTIVIDADES EN TERRENO</div>
 
-        <!-- Foto 3: Check List 1 -->
-        <div class="pdf-full-photo-page">
-            <div class="photo-title">EVIDENCIA FOTOGRÁFICA — DOCUMENTACIÓN<br>
-                <span style="font-size:12px;">3. Check List 1</span>
+            <!-- Fila 1: Actividad 1 + Actividad 2 -->
+            <div class="pdf-photo-row">
+                <div class="pdf-photo-cell">
+                    <div id="pdf-wrap-act1">
+                        <img id="pdf-img-act1" src="" alt="">
+                    </div>
+                    <div class="pdf-img-label">Actividad 1</div>
+                </div>
+                <div class="pdf-photo-cell">
+                    <div id="pdf-wrap-act2">
+                        <img id="pdf-img-act2" src="" alt="">
+                    </div>
+                    <div class="pdf-img-label">Actividad 2</div>
+                </div>
             </div>
-            <div class="photo-container" id="pdf-wrap-chk1">
-                <img id="pdf-img-chk1" src="" alt="">
-            </div>
-        </div>
 
-        <!-- Foto 4: Check List 2 -->
-        <div class="pdf-full-photo-page">
-            <div class="photo-title">EVIDENCIA FOTOGRÁFICA — DOCUMENTACIÓN<br>
-                <span style="font-size:12px;">4. Check List 2</span>
-            </div>
-            <div class="photo-container" id="pdf-wrap-chk2">
-                <img id="pdf-img-chk2" src="" alt="">
-            </div>
-        </div>
-
-        <!-- Foto 5: Actividad 1 -->
-        <div class="pdf-full-photo-page">
-            <div class="photo-title">EVIDENCIA FOTOGRÁFICA — ACTIVIDADES EN TERRENO<br>
-                <span style="font-size:12px;">Actividad 1</span>
-            </div>
-            <div class="photo-container" id="pdf-wrap-act1">
-                <img id="pdf-img-act1" src="" alt="">
-            </div>
-        </div>
-
-        <!-- Foto 6: Actividad 2 -->
-        <div class="pdf-full-photo-page">
-            <div class="photo-title">EVIDENCIA FOTOGRÁFICA — ACTIVIDADES EN TERRENO<br>
-                <span style="font-size:12px;">Actividad 2</span>
-            </div>
-            <div class="photo-container" id="pdf-wrap-act2">
-                <img id="pdf-img-act2" src="" alt="">
-            </div>
-        </div>
-
-        <!-- Foto 7: Actividad 3 -->
-        <div class="pdf-full-photo-page">
-            <div class="photo-title">EVIDENCIA FOTOGRÁFICA — ACTIVIDADES EN TERRENO<br>
-                <span style="font-size:12px;">Actividad 3</span>
-            </div>
-            <div class="photo-container" id="pdf-wrap-act3">
-                <img id="pdf-img-act3" src="" alt="">
-            </div>
-        </div>
-
-        <!-- Foto 8: Actividad 4 -->
-        <div class="pdf-full-photo-page">
-            <div class="photo-title">EVIDENCIA FOTOGRÁFICA — ACTIVIDADES EN TERRENO<br>
-                <span style="font-size:12px;">Actividad 4</span>
-            </div>
-            <div class="photo-container" id="pdf-wrap-act4">
-                <img id="pdf-img-act4" src="" alt="">
+            <!-- Fila 2: Actividad 3 + Actividad 4 -->
+            <div class="pdf-photo-row">
+                <div class="pdf-photo-cell">
+                    <div id="pdf-wrap-act3">
+                        <img id="pdf-img-act3" src="" alt="">
+                    </div>
+                    <div class="pdf-img-label">Actividad 3</div>
+                </div>
+                <div class="pdf-photo-cell">
+                    <div id="pdf-wrap-act4">
+                        <img id="pdf-img-act4" src="" alt="">
+                    </div>
+                    <div class="pdf-img-label">Actividad 4</div>
+                </div>
             </div>
         </div>
 
@@ -730,20 +728,29 @@
         return `${d}/${m}/${y}`;
     }
 
-    /* ── Poner foto o placeholder en el PDF (plana completa) ── */
+    /* ── Poner foto o placeholder en el PDF ── */
     function setFotoPdf(key) {
         const img  = document.getElementById('pdf-img-' + key);
         const wrap = document.getElementById('pdf-wrap-' + key);
-        if (!img || !wrap) return;
         if (imagenesCargadas[key]) {
-            // Limpiar el contenedor y poner solo la imagen
-            wrap.innerHTML = '';
             img.src = imagenesCargadas[key];
-            img.style.cssText = 'max-width:100%; max-height:100%; object-fit:contain; display:block;';
-            wrap.appendChild(img);
+            img.style.display = 'block';
+            // Limpiar placeholder si existe
+            if (wrap.querySelector('.pdf-no-photo')) {
+                wrap.innerHTML = '';
+                wrap.appendChild(img);
+                img.style.display = 'block';
+            }
         } else {
-            // Sin foto: mostrar placeholder centrado
-            wrap.innerHTML = '<div class="pdf-no-photo"><div style="font-size:36px; margin-bottom:8px;">📷</div><div>Sin Fotografía</div></div>';
+            img.style.display = 'none';
+            // Si ya hay un placeholder, no duplicar
+            if (!wrap.querySelector('.pdf-no-photo')) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'pdf-no-photo';
+                placeholder.innerText = 'Sin Fotografía';
+                wrap.innerHTML = '';
+                wrap.appendChild(placeholder);
+            }
         }
     }
 
